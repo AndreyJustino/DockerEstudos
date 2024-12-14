@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+#nome do serviço/container que vamos criar 
+  mysqlContainer:
+    image: mysql:8
+    container_name: mysqlContainer
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_PASSWORD=root
+      - MYSQL_USER=admin
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=rocketDB
+    networks:
+      - network-apiRocket #dizendo qual rede ele dever usar
+  
+  
+  api-rocket: # Nome do serviço, representa o container para a API "rocket"
+    container_name: api-rocket
+    build: # Informa que será necessário construir uma imagem para este serviço
+      context: . # Define o diretório atual como o local onde está o Dockerfile/imagem
+    ports: 
+      - 3001:3000
+    depends_on:
+      - mysqlContainer #informando que ele deve buscar iniciar seu serviço dps do mysqlContainer
+    networks:
+      - network-apiRocket #dizendo qual rede ele dever usar
+
+networks: #dizendo qual rede ele deve criar
+  network-apiRocket:
+    name: network-apiRocket
+    external: true # dizendo que é um rede externa, pois ja criamos ela via cmd
+    driver: bridge
+
+volumes:
+  db: 
